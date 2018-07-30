@@ -1,3 +1,12 @@
+#### Launch script
+sbatch nomSbatch.sh
+
+# See your job
+ls -la slurm-ID.out
+
+#To see what happend during debug
+view ID.out
+
 #### Job Managment
 #You can see how much memory/cpu your job is using if it is still running using sstat.
 sstat --format=AveCPU,MaxRSS,JobID,NodeList -j <yourjobid>
