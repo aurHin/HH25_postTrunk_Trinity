@@ -7,6 +7,16 @@ ls -la slurm-ID.out
 #To see what happend during debug
 view ID.out
 
+#View at what time job should start
+scontrol show job ID Starttime
+
+#To view the position in the queue
+squeue -u hinterma
+
+#To cancel a job
+scancel id
+
+
 #### Job Managment
 #You can see how much memory/cpu your job is using if it is still running using sstat.
 sstat --format=AveCPU,MaxRSS,JobID,NodeList -j <yourjobid>
