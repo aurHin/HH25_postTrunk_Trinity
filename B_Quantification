@@ -107,3 +107,33 @@ Stats based on ALL transcript contigs:
         Average contig: 719.54
         Total assembled bases: 75734727
 
+# Check with 
+grep '>' Trinity.fasta | wc -l
+# the number should match Total trinity transcripts:      144214 of the previous command. Here, yes.
+
+#####
+# More useful stats and representation of reads
+#####
+
+indexBT2.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
+
+#Submitted batch job 9137063
+
+[hinterma@login1 HH25_Trinity]$ sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9137063
+              Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-30T15:02:19   00:13:24             COMPLETED            9137063              node003       20Gn 
+2018-07-30T15:02:19   00:13:24   00:00:00  COMPLETED      0.01G 9137063.bat+         node003       20Gn 
+2018-07-30T15:02:21   00:13:22   00:12:57  COMPLETED      0.83G 9137063.0            node003       20Gn 
