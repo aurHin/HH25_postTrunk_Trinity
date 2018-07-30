@@ -19,6 +19,8 @@ srun util/align_and_estimate_abundance.pl --seqType fq \
          --output_dir HH25_salmon \
          --prep_reference
          
+# Launch script
+sbatch quantif.sh
 #slurm-9118644.out         
 # I asked too much time
 
@@ -29,3 +31,79 @@ srun util/align_and_estimate_abundance.pl --seqType fq \
 2018-07-27T18:22:06   00:04:16             COMPLETED            9118644              node197       40Gn 
 2018-07-27T18:22:06   00:04:16   00:00:00  COMPLETED      0.01G 9118644.bat+         node197       40Gn 
 2018-07-27T18:22:09   00:04:13   00:16:23  COMPLETED      2.51G 9118644.0            node197       40Gn 
+
+
+#####
+# Stats on Assembly
+#####
+
+# SBATCH file "AssemblyStat.sh ":
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun util/TrinityStats.pl trinity_out_dir/Trinity.fasta
+
+# Launch script
+sbatch AssemblyStat.sh 
+# slurm-9136757.out
+
+
+# Check stats of run:
+sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9136757
+              Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-30T12:42:12   00:00:52             COMPLETED            9136757              node003       20Gn 
+2018-07-30T12:42:12   00:00:52   00:00:00  COMPLETED      0.01G 9136757.bat+         node003       20Gn 
+2018-07-30T12:42:13   00:00:50   00:00:19  COMPLETED      0.02G 9136757.0            node003       20Gn 
+
+# Here it is so fast that the debug was sufficient, no need to re-run
+
+#####
+#Output
+#####
+
+
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':  105255
+Total trinity transcripts:      144214
+Percent GC: 47.31
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+        Contig N10: 6277
+        Contig N20: 4804
+        Contig N30: 3855
+        Contig N40: 3114
+        Contig N50: 2456
+
+        Median contig length: 418
+        Average contig: 1055.05
+        Total assembled bases: 152152903
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+        Contig N10: 5581
+        Contig N20: 4052
+        Contig N30: 3058
+        Contig N40: 2206
+        Contig N50: 1477
+
+        Median contig length: 334
+        Average contig: 719.54
+        Total assembled bases: 75734727
+
