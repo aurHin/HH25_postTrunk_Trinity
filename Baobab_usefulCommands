@@ -1,0 +1,10 @@
+#### Job Managment
+#You can see how much memory/cpu your job is using if it is still running using sstat.
+
+sstat --format=AveCPU,MaxRSS,JobID,NodeList -j <yourjobid>
+
+If your job is no longer running, you can use sacct to see stats about.
+
+sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j <yourjobid>
+
+If you want other information please see the sacct manpage.
