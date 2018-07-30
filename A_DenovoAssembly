@@ -1,3 +1,7 @@
+#####
+# write SBATCH file with nano
+#####
+
 #!/bin/sh
 
 #SBATCH --time=12:00:00
@@ -11,3 +15,11 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.$
 
 srun Trinity --seqType fq --max_memory 39G \
          --single HH25_RNAseq_R1.fastq --CPU 20
+
+# saved: runjob.sh
+
+#####
+# submit SBATCH file to Baobab
+#####
+
+sbatch runjob.sh
