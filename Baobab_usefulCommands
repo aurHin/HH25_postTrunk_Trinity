@@ -1,10 +1,14 @@
 #### Job Managment
 #You can see how much memory/cpu your job is using if it is still running using sstat.
-
 sstat --format=AveCPU,MaxRSS,JobID,NodeList -j <yourjobid>
 
-If your job is no longer running, you can use sacct to see stats about.
-
+#If your job is no longer running, you can use sacct to see stats about.
 sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j <yourjobid>
 
-If you want other information please see the sacct manpage.
+#If you want other information please see the sacct manpage.
+#https://slurm.schedmd.com/sacct.html
+
+### Useful info when run finished: time and required memory
+#I used "Elapsed" to see the runiing time:
+sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 8999494
+
