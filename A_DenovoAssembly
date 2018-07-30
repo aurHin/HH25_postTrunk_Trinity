@@ -12,7 +12,7 @@
 #SBATCH --mail-type=ALL
 
 
-module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.$
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
 srun Trinity --seqType fq --max_memory 19G \
 --single HH25_RNAseq_R1.fastq --CPU 6
