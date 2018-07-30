@@ -17,3 +17,4 @@ Edit with nano if not manage with vi.
 
 Write the #SBATCH script in the folder where you want the output. Give it a name name.sh. For this example: runjobTrinity.sh
 
+
