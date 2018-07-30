@@ -1,0 +1,31 @@
+#quantif.sh, first run debug, then:
+
+#!/bin/sh
+
+#SBATCH --time=04:00:00
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=40G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun util/align_and_estimate_abundance.pl --seqType fq \
+         --single HH25_RNAseq_R1.fastq  \
+         --transcripts trinity_out_dir/Trinity.fasta  \
+         --est_method salmon \
+         --trinity_mode \
+         --output_dir HH25_salmon \
+         --prep_reference
+         
+#slurm-9118644.out         
+# I asked too much time
+
+
+[hinterma@login1 HH25_Trinity]$ sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
+              Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-27T18:22:06   00:04:16             COMPLETED            9118644              node197       40Gn 
+2018-07-27T18:22:06   00:04:16   00:00:00  COMPLETED      0.01G 9118644.bat+         node197       40Gn 
+2018-07-27T18:22:09   00:04:13   00:16:23  COMPLETED      2.51G 9118644.0            node197       40Gn 
