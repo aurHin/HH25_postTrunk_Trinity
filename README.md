@@ -10,6 +10,8 @@ Can not run locally, need hpc. Here, baobab from unige is used.
 
 ## BAOBAB
 
+All files are in Baobab home/HH25_Trinity/
+
 Some specificities:
 
 Need to write #SBATCH file. SBATCH = Slurm BATCH, specific to baobab. Starting with "#", here is not a comment. To comment the line, "##". This file type is SBATCH, and it is written in BASH language.
