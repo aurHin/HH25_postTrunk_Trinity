@@ -2,6 +2,23 @@
 # write SBATCH file with nano
 #####
 
+# First DEBUG with the debug partition
+#!/bin/sh
+
+#SBATCH --time=00:15:00 ## Max time on debug is 15 mn
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=20G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.$
+
+srun Trinity --seqType fq --max_memory 19G \
+--single HH25_RNAseq_R1.fastq --CPU 6
+
+# Then can run on shared or else
+
 #!/bin/sh
 
 #SBATCH --time=12:00:00
