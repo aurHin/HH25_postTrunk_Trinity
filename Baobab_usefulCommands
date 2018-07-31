@@ -8,7 +8,7 @@ ls -la slurm-ID.out
 view ID.out
 
 #View at what time job should start
-scontrol show job ID Starttime
+scontrol show job 9141202
 
 #To view the position in the queue
 squeue -u hinterma
