@@ -137,3 +137,20 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 2018-07-30T15:02:19   00:13:24             COMPLETED            9137063              node003       20Gn 
 2018-07-30T15:02:19   00:13:24   00:00:00  COMPLETED      0.01G 9137063.bat+         node003       20Gn 
 2018-07-30T15:02:21   00:13:22   00:12:57  COMPLETED      0.83G 9137063.0            node003       20Gn 
+
+
+SortedBAM.sh
+
+#!/bin/sh
+
+#SBATCH --time=06:06:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.$
+
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNA$
+        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
+
