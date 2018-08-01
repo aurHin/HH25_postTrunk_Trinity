@@ -141,7 +141,8 @@ Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList  
 
 #Explanations about job 9137976 and SorteBAM.sh
 # First step, bowtie2, takes fasta as input and give .sam as output. For this job 9137976, it seems that the step worked. Later,
-# I separated the commands (no pipes), see job slurm-9138324.out and command file BT2_v1.sh, and the outpu sam was the same.
+# I separated the commands (no pipes), see job slurm-9138324.out and command file BT2_v1.sh, and the output sam was the same.
+# Then I ran separately samtoolsViewOnly.sh. This creates a .bam
 
 [hinterma@login1 HH25_Trinity]$ head slurm-9137976.out 
 @HD	VN:1.0	SO:unsorted
@@ -294,9 +295,52 @@ Submitted batch job 9142760
 
 
 #Doesn't work. sacct has error, but I see file size of jobs and outputs = 0.
+
 % bowtie2 --local --no-unal -x Trinity.fasta -q -1 left.100k.fastq -2 right.100k.fastq \
         | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
 
+# Explain samtools view -Sb - 
+# samtools view : prints all alignments in the specified input alignment file (in SAM, BAM, or CRAM format) to standard output in SAM format
+#-S Ignored for compatibility with previous samtools versions. Previously this option was required if input was in SAM format, but now the correct format is automatically detected by examining the first few characters of input. 
+# -b Output in the BAM format. 
+
+#From trinity doc: samtools view -Sb -  (input = bowtie2.sam)
+# From samtools doc: samtools view -bS aln.sam > aln.bam (Import SAM to BAM when @SQ lines are present in the header)
+
+samtoolsViewOnly.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:30:00
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=20G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun samtools view -bS bowtie2.sam > bowtie2_v2.bam
+
+Submitted batch job 9142910
+
+
+### Step 3
+
+samtoolsSort.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=6 
+#SBATCH --mem=20G
+#SBATCH --partition=debug 
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+samtools sort -o bowtie2.coordSorted.bam
 
 error
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
