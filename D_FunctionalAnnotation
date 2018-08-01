@@ -1,0 +1,26 @@
+#####
+#Identification of likely protein-coding regions in transcripts
+#####
+
+### TransDecoder (Not in trinityrnaseq-Trinity-v2.6.6, need to install) 
+
+# TD Step1 - identify all long ORFs.
+
+LongORFs.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:05:00
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun /usr/local/src/TransDecoder/TransDecoder.LongOrfs -t Trinity.fasta
+
+Submitted batch job 9143043
+
+# TD Step2 - predict which ORFs are likely to be coding.
