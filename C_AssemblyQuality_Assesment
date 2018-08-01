@@ -117,7 +117,7 @@ SortedBAM.sh
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNA$
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq
         | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
         
 #Submitted batch job 9137829  
@@ -134,7 +134,15 @@ Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList  
 2018-07-30T17:32:57   04:15:45                FAILED            9137976              node067       60Gn 
 2018-07-30T17:32:57   04:15:45   00:19:59     FAILED      0.01G 9137976.bat+         node067       60Gn 
 2018-07-30T17:33:00   04:15:42   00:20:47  COMPLETED      0.33G 9137976.0            node067       60Gn 
-?
+
+#####
+# ? About bowtie2
+#####
+
+#Explanations about job 9137976 and SorteBAM.sh
+# First step, bowtie2, takes fasta as input and give .sam as output. For this job 9137976, it seems that the step worked. Later,
+# I separated the commands (no pipes), see job slurm-9138324.out and command file BT2_v1.sh, and the outpu sam was the same.
+
 [hinterma@login1 HH25_Trinity]$ head slurm-9137976.out 
 @HD	VN:1.0	SO:unsorted
 @SQ	SN:TRINITY_DN101689_c0_g1_i1	LN:365
@@ -160,8 +168,8 @@ K00341:59:HKMMJBBXX:8:1102:21633:28709	0	TRINITY_DN36393_c0_g1_i2	2427	44	105M	*
 
 I have no output BAM so I guess it did not work. I split the three steps to see where is the problem.
 #Step 1
- BT2_v1.sh
- 
+ BT2_v1.sh 
+
  #!/bin/sh
 
 #SBATCH --time=06:06:00
@@ -286,6 +294,8 @@ Submitted batch job 9142760
 
 
 #Doesn't work. sacct has error, but I see file size of jobs and outputs = 0.
+% bowtie2 --local --no-unal -x Trinity.fasta -q -1 left.100k.fastq -2 right.100k.fastq \
+        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
 
 
 error
