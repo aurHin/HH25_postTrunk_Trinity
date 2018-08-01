@@ -284,6 +284,10 @@ srun samtools view -@10 -Sb bowtie2.sam -o bowtie2.bam 2>&1 | tee align_stats.tx
 [hinterma@login1 HH25_Trinity]$ sbatch samtoolsViewTee.sh 
 Submitted batch job 9142760
 
+
+#Doesn't work. sacct has error, but I see file size of jobs and outputs = 0.
+
+
 error
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
 sacct: error: slurm_persist_conn_open_without_init: failed to open persistent connection to master:6819: Connection refused
