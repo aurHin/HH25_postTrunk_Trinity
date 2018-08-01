@@ -282,7 +282,7 @@ K00341:59:HKMMJBBXX:8:2228:31659:48649	0	TRINITY_DN37884_c1_g1_i1	2812	44	1S104M
 (same kind of output than slurm-9137829.out)
 
 #Step 2 (in workshpo we have 2 steps with samtools, but in trinityrnaseq they do only one)
-STview.sh
+samtoolsView.sh 
 
 #!/bin/sh
 
@@ -299,5 +299,25 @@ srun samtools view -@10 -Sb HH25.sam -o HH25.bam 2>&1
 TEST sbatch samtoolsView.sh 
 Submitted batch job 9141190
 
-sbatch samtoolsView.sh 
+sbatch samtoolsViewTee.sh 
 Submitted batch job 9141202
+
+#!/bin/sh
+
+#SBATCH --time=05:00:00
+#SBATCH --cpus-per-task=30
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun samtools view -@10 -Sb HH25.sam -o HH25.bam 2>&1 | tee align_stats.txt
+
+
+error
+[hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
+sacct: error: slurm_persist_conn_open_without_init: failed to open persistent connection to master:6819: Connection refused
+sacct: error: slurmdbd: Sending PersistInit msg: Connection refused
+sacct: error: Problem talking to the database: Connection refused
+
