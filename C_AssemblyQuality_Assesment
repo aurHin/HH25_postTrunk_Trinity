@@ -323,7 +323,10 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 srun samtools view -bS bowtie2.sam > bowtie2_v2.bam
 
 Submitted batch job 9142910
+# took 14 mn
 
+# This gave me the same file size thant the pied command. So I guess Step 2 also worked.
+# To clean , I rm bowtie2.bam and then mv bowtie2_v2.bam bowtie2.bam 
 
 ### Step 3
 
@@ -340,7 +343,25 @@ samtoolsSort.sh
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-samtools sort -o bowtie2.coordSorted.bam
+srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam
+
+#####
+# To debug
+#####
+
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=6 
+#SBATCH --mem=20G
+#SBATCH --partition=debug 
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam
+
 
 error
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
