@@ -93,20 +93,22 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 
 # Step 1 - align the reads to the Trinity assembly. Tool = bowtie2, Input = fasta, Output = sam
 
-bowtie2.sh
+bowtie2_v2.sh
 
 #!/bin/sh
 
-#SBATCH --time=01:30:00
+#SBATCH --time=04:00:00
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=60G
 #SBATCH --partition=shared
 #SBATCH --mail-type=ALL
-#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+#SBATCH --mail-user=aurelie.hintermann@unige.ch
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S bowtie2.sam
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S bowtie2_v2.sam
+
+
 
 Submitted batch job 9143025
 
