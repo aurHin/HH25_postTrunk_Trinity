@@ -97,6 +97,8 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 
 #Submitted batch job 9137063
 
+# No output file to check but seems to be ok because A) and B):
+A)
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9137063
               Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
 ------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
@@ -104,6 +106,11 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 2018-07-30T15:02:19   00:13:24   00:00:00  COMPLETED      0.01G 9137063.bat+         node003       20Gn 
 2018-07-30T15:02:21   00:13:22   00:12:57  COMPLETED      0.83G 9137063.0            node003       20Gn 
 
+B) View slurm-9137063.out
+log of job seems ok, outputs and numbers, last line= Total time for backward call to driver() for mirror index: 00:06:38
+
+
+SortedBAM.sh
 
 SortedBAM.sh
 
