@@ -72,7 +72,7 @@ grep '>' Trinity.fasta | wc -l
 
 ### Represantation of reads
 
-# Pre-step: build a bowtie2 index for the Trinity assembly
+## Pre-step: build a bowtie2 index for the Trinity assembly
 
 indexBT2.sh
 
@@ -91,7 +91,7 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 
 #Submitted batch job 9137063
 
-# Step 1 - align the reads to the Trinity assembly. Tool = bowtie2, Input = fasta, Output = sam
+## Step 1 - align the reads to the Trinity assembly. Tool = bowtie2, Input = fasta, Output = sam
 
 bowtie2.sh
 
@@ -110,14 +110,26 @@ srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAs
 
 Submitted batch job 9143140
 
-# Step 2 - print alignments without headers. tool= samtools view, input = sam, output= bam 
+#run time 2:31:00
+#bowtie2.sam size generated = 27374850794
+view slurm-9143140.out
+
+76925345 reads; of these:
+  76925345 (100.00%) were unpaired; of these:
+    1812360 (2.36%) aligned 0 times
+    21247057 (27.62%) aligned exactly 1 time
+    53865928 (70.02%) aligned >1 times
+97.64% overall alignment rate
+
+
+## Step 2 - print alignments without headers. tool= samtools view, input = sam, output= bam 
 
 samtoolsView.sh 
 
 #!/bin/sh
 
 #SBATCH --time=00:20:00 ## should take 14 mn
-#SBATCH --cpus-per-task=30
+#SBATCH --cpus-per-task=20
 #SBATCH --mem=60G
 #SBATCH --partition=shared
 #SBATCH --mail-type=ALL
@@ -125,7 +137,12 @@ samtoolsView.sh
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun samtools view -bS bowtie2.sam > bowtie2_v2.bam
+srun samtools view -bS bowtie2.sam > bowtie2.bam
+
+Submitted batch job 9143427
+#run time 00:13:52
+#bowtie2.bam size generated = 5050728346
+
        
 ### Step 3 - generate a readname-sorted bam file
 
@@ -133,7 +150,7 @@ samtoolsSort.sh
 
 #!/bin/sh
 
-#SBATCH --time=00:15:00
+#SBATCH --time=00:05:00
 #SBATCH --cpus-per-task=6 
 #SBATCH --mem=20G
 #SBATCH --partition=debug 
@@ -145,6 +162,9 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 ## srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam # !! ERASE bowtie2.bam
 ##try with:
 srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
+Submitted batch job 9143443
+
+with srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
 
 #####
 # To debug
