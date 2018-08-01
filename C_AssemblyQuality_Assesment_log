@@ -183,7 +183,7 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 
 srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S HH25.sam
 
-# I coul dincrease CPU
+# I could increase CPU
 slurm-9138324.out
 
 View
@@ -345,13 +345,33 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 
 srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam
 
+#Restart because previous command is wrong and erase .bam and .sam
+
+#Step 1
+bowtie2.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:30:00
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S bowtie2.sam
+
+Submitted batch job 9142995
+
 #####
 # To debug
 #####
 
 #!/bin/sh
 
-#SBATCH --time=00:15:00
+#SBATCH --time=00:05:00
 #SBATCH --cpus-per-task=6 
 #SBATCH --mem=20G
 #SBATCH --partition=debug 
@@ -362,8 +382,12 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 
 srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam
 
+#srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam # .bam does not work. try with .sam
 
-error
+######
+# sacct error
+######
+
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
 sacct: error: slurm_persist_conn_open_without_init: failed to open persistent connection to master:6819: Connection refused
 sacct: error: slurmdbd: Sending PersistInit msg: Connection refused
