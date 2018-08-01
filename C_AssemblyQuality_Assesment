@@ -278,10 +278,11 @@ Submitted batch job 9141202
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun samtools view -@10 -Sb HH25.sam -o HH25.bam 2>&1 | tee align_stats.txt
+srun samtools view -@10 -Sb bowtie2.sam -o bowtie2.bam 2>&1 | tee align_stats.txt
+#( I renamed files HH25 to bowtie2 in order to follow more easily trinity documentation)
 
 [hinterma@login1 HH25_Trinity]$ sbatch samtoolsViewTee.sh 
-Submitted batch job 9142749
+Submitted batch job 9142760
 
 error
 [hinterma@login1 HH25_Trinity]$ sacct --format=Start,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9118644
