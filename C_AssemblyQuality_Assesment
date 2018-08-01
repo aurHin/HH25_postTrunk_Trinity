@@ -15,7 +15,7 @@
 #SBATCH --mem=20G
 #SBATCH --partition=debug
 #SBATCH --mail-type=ALL
-
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
@@ -70,7 +70,9 @@ grep '>' Trinity.fasta | wc -l
 # More useful stats and representation of reads
 #####
 
-#build a bowtie2 index for the Trinity assembly
+### Represantation of reads
+
+# Pre-step: build a bowtie2 index for the Trinity assembly
 
 indexBT2.sh
 
@@ -81,6 +83,7 @@ indexBT2.sh
 #SBATCH --mem=20G
 #SBATCH --partition=debug
 #SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
@@ -88,227 +91,43 @@ srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
 
 #Submitted batch job 9137063
 
+# Step 1 - align the reads to the Trinity assembly. Tool = bowtie2, Input = fasta, Output = sam
 
-#!/bin/sh
-
-#SBATCH --time=06:06:00
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=60G
-#SBATCH --partition=shared
-#SBATCH --mail-type=ALL
-
-module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
-
-srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq
-        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
-        
-#Submitted batch job 9137829  
-Examples for timeout (I put 6 minutes instead of 6 hours).
-
-Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
-------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
-2018-07-30T16:44:08   00:15:20               TIMEOUT            9137829              node003       20Gn 
-2018-07-30T16:44:08   00:15:20   00:01:05  CANCELLED      0.01G 9137829.bat+         node003       20Gn 
-2018-07-30T16:44:10   00:15:18   00:09:22  CANCELLED      0.33G 9137829.0            node003       20Gn 
-
-#Submitted batch job 9137976    
-------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
-2018-07-30T17:32:57   04:15:45                FAILED            9137976              node067       60Gn 
-2018-07-30T17:32:57   04:15:45   00:19:59     FAILED      0.01G 9137976.bat+         node067       60Gn 
-2018-07-30T17:33:00   04:15:42   00:20:47  COMPLETED      0.33G 9137976.0            node067       60Gn 
-
-#####
-# ? About bowtie2
-#####
-
-#Explanations about job 9137976 and SorteBAM.sh
-# First step, bowtie2, takes fasta as input and give .sam as output. For this job 9137976, it seems that the step worked. Later,
-# I separated the commands (no pipes), see job slurm-9138324.out and command file BT2_v1.sh, and the output sam was the same.
-# Then I ran separately samtoolsViewOnly.sh. This creates a .bam
-
-[hinterma@login1 HH25_Trinity]$ head slurm-9137976.out 
-@HD	VN:1.0	SO:unsorted
-@SQ	SN:TRINITY_DN101689_c0_g1_i1	LN:365
-@SQ	SN:TRINITY_DN101632_c0_g1_i1	LN:242
-@SQ	SN:TRINITY_DN101600_c0_g1_i1	LN:304
-@SQ	SN:TRINITY_DN101691_c0_g1_i1	LN:251
-@SQ	SN:TRINITY_DN101620_c0_g1_i1	LN:218
-@SQ	SN:TRINITY_DN101641_c0_g1_i1	LN:354
-@SQ	SN:TRINITY_DN101696_c0_g1_i1	LN:265
-@SQ	SN:TRINITY_DN101603_c0_g1_i1	LN:406
-@SQ	SN:TRINITY_DN101626_c0_g1_i1	LN:229
-[hinterma@login1 HH25_Trinity]$ tail slurm-9137976.out 
-K00341:59:HKMMJBBXX:8:1102:20537:28709	16	TRINITY_DN23395_c0_g1_i4	1150	1	105M	*	0	AGACATTATACGTTTGCGTCTGGTTCTCCAGATAACATTAAACAGTGGAAATTCCCAGATGGAAACTTCATTCAGAACCTGTCTGGTCACAATGCTATTATCAAC	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
-K00341:59:HKMMJBBXX:8:1102:20659:28709	0	TRINITY_DN37200_c0_g1_i4	2231	1	105M	*	0	CTGGGAGGGGTTGAAGACAGCTTGCTCCTCTCTGCCCTTCAGTGTCAAAAGCAAGCTTTGATTGGAAGTAATATTCTCTTCAGGAGAATTCTCACAAGACAGTTG	AAAFAJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ	AS:i:203	XS:i:203	XN:i:0	XM:i:1	XO:i:0	XG:i:0	NM:i:1	MD:Z:4A100	YT:Z:UU
-K00341:59:HKMMJBBXX:8:1102:20679:28709	0	TRINITY_DN38828_c0_g2_i2	1234	11	12S5M1D88M	*	CTTAATTAGAAGTGTCCTCTCTAGTTTCCACGGTCTTAATTAGAAGTGTCCTCTTCGAGTGAGTGTCAACAATTGGCTGAGACTCAATGTTGGTTTCTCTCAGGT	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ	AS:i:170	XS:i:156	XN:i:0	XM:i:1	XO:i:1	XG:i:1	NM:i:2	MD:Z:5^A46G41	YT:Z:UU
-K00341:59:HKMMJBBXX:8:1102:20902:28709	16	TRINITY_DN32281_c0_g1_i2	330	1	105M	*	0	GTCCGTGCTCACGGCAAAAAAGTGCTGAGCTCCTTTGGGGAAGCCGTGAAGAACCTGGACAACATCAAGAACACCTACGCCAAGCTGTCGGAGCTGCACTGCGAG	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
-K00341:59:HKMMJBBXX:8:1102:21065:28709	0	TRINITY_DN6054_c0_g1_i1	918	44	105M	*	0	0	TAGCGTTGTACCCTTTGCTAAAGCTGCTGATTCTGCCACATAAACTAGAACAGAAATTTCTCAGAAATTAATTCGGATCCCCTCCTTGTTAATTCACTGTCTGCT	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ	AS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
-srun: error: node067: tasks 1-7: Killed
-K00341:59:HKMMJBBXX:8:1102:21146:28709	16	TRINITY_DN27317_c0_g1_i2	1012	1	105M	*	0	GAATCAGCACTGTTAAGAATGTTCTGTAGATATCTCTGTAAATATTTTTCAACTTGCTATTTTGCTATACTGATGTCATTGGAAATAGGAATTTGTTTTTTCTAG	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
-K00341:59:HKMMJBBXX:8:1102:21633:28709	0	TRINITY_DN36393_c0_g1_i2	2427	44	105M	*	0	CACAAAATTAAAACGAAAAGCCCCGCAGCTAACCCTGCCTACCTTCATTCACAGTGCTTATGCTTAAACCATGATGGGATTAAAAGCAGAGATGTGCTGCTGCTT	AAAFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ	AS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
-/var/spool/slurmd/job9137976/slurm_script: line 12: syntax error near unexpected token `|'
-/var/spool/slurmd/job9137976/slurm_script: line 12: `        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam'
-
-I have no output BAM so I guess it did not work. I split the three steps to see where is the problem.
-#Step 1
- BT2_v1.sh 
-
- #!/bin/sh
-
-#SBATCH --time=06:06:00
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=60G
-#SBATCH --partition=shared
-#SBATCH --mail-type=ALL
-
-module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
-
-srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S HH25.sam
-
-# I could increase CPU
-slurm-9138324.out
-
-View
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-97.64% overall alignment rate
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-97.64% overall alignment rate
-97.64% overall alignment rate
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-97.64% overall alignment rate
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-97.64% overall alignment rate
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-97.64% overall alignment rate
-76925345 reads; of these:
-  76925345 (100.00%) were unpaired; of these:
-    1812360 (2.36%) aligned 0 times
-    21247057 (27.62%) aligned exactly 1 time
-    53865928 (70.02%) aligned >1 times
-
-#Output .sam
-
-[hinterma@login1 HH25_Trinity]$ head HH25.sam 
-@HD	VN:1.0	SO:unsorted
-@SQ	SN:TRINITY_DN101689_c0_g1_i1	LN:365
-@SQ	SN:TRINITY_DN101632_c0_g1_i1	LN:242
-@SQ	SN:TRINITY_DN101600_c0_g1_i1	LN:304
-@SQ	SN:TRINITY_DN101691_c0_g1_i1	LN:251
-@SQ	SN:TRINITY_DN101620_c0_g1_i1	LN:218
-@SQ	SN:TRINITY_DN101641_c0_g1_i1	LN:354
-@SQ	SN:TRINITY_DN101696_c0_g1_i1	LN:265
-@SQ	SN:TRINITY_DN101603_c0_g1_i1	LN:406
-@SQ	SN:TRINITY_DN101626_c0_g1_i1	LN:229
-[hinterma@login1 HH25_Trinity]$ tail HH25.sam 
-K00341:59:HKMMJBBXX:8:2228:12154:48649	0	TRINITY_DN30217_c0_g1_i1	694	1	1S104M	*	0	0	NTCTTTCAATGCCCAGATATTGGCACGGTAATTTACATTTGATGGCATAATAGTATGATGCCTTCCATGTCTTGCCAACAGTACACAGTCCACATTTTTTATCTT	#AAFFJJJAJJJJJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJFJJJJJJJFJJJA7<JFAJJFJJJJJJJJFFAAJJJJJFJJJJJFJ	AS:i:208	XS:i:208	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:104	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:12276:48649	0	TRINITY_DN35437_c1_g1_i3	2721	1	1S104M	*	0	0	NGAAGGTGGAAAGCTACAGTACTTTGTTGCCCAGAACGTATTCAACGGTAAGGATGGGGGCCGCCTGGTATTGATGGAGCACCAGCAGGACCAGACGGCACTTGA	#AAFFJJJJ<JFJJFJJJJJJJFFJFJFJFJJJJJJJF<-FA<FJJFJA-FJ7-7FF7A-77FAF-F-7--A<7-7-<F-AA-AFJJJJJJJ<AJJJJ-A-FJFJ	AS:i:202	XS:i:202	XN:i:0	XM:i:1	XO:i:0	XG:i:0	NM:i:1	MD:Z:67C36	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:12398:48649	16	TRINITY_DN34094_c0_g1_i1	133	44	104M1S	*	0	0	AAAGGGTCCAGAAGTCTGGTGTCAGAGTCTTCGGACAGCATCGCAGTGTGGAGCGGTGAAACACTGCCAGCAGAATGTCTGGAGCAAGCCTGCTGTAAACAGCAN	7J<<FFA7JJJAJJJJJJJJJJJA<A7-<JAJJJJFJFJJJJA-JJFFJJ<<FFFFJJJJ<JJFJFFFFJF-JFFFFAFJJJJJJJFJFJJJJJJJ77FFFAAA#	AS:i:208	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:104	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:12702:48649	16	TRINITY_DN31876_c0_g1_i1	1573	1	104M1S	*	0	0	TCTTTCATCACATCAGAGAACTGGTACCCAAGGACTGCATTTTAGTAAGCGAAGGAGCGAACACCATGGACATCGGACGAACTATGCTTCCTAACTATCATCCCN	FJJJ7<F7JJJJAA-A<<FJJJAJFFF77AFJFJJJAJJJJJJJJJFJ<JJJJAJFJJJJFFJJJJJJJAFFJJJJJJJJJJJJJJFFJJJJJJJFJJJJFAAA#	AS:i:208	XS:i:208	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:104	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:12723:48649	16	TRINITY_DN28951_c0_g1_i1	3458	44	104M1S	*	0	0	TGAAAGTAGGGAAATGAGTACACACATGTCTACTTTAAGTCAAGTGATCCCAATGATCCATATACTTAACAGGAAAATAGAAATGCTATTTGAGGAAACAATGGN	J<--JJFJF7FA-FJJFF-JAFA7JJFA---FFJFF7JAJFFA<-AF<-<-FF-JJ-FJJFJJAF<F-FJF<JF-FJFFJJFFAJFJAFFJFJFJJJJJJFAAA#	AS:i:203	XN:i:0	XM:i:1	XO:i:0	XG:i:0	NM:i:1	MD:Z:2C101	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:13088:48649	0	TRINITY_DN20435_c2_g1_i2	2289	1	1S45M1D59M	*	0	0	NAGCTACACTTGCACCAATTATGTAAGGAGAGCTTTCTCCCCCCCCTTTTTTTTTAAACTTGTCTCTACTTTAAAGCTATTCCATGCTATCTCAGAAATCCTGGG	#AAAAFJJJ<JFJFJJJFJJJFJJJJ7JJJAJJJFJJ-<JF<FJFF<JJAJ<AFJA<7A<J<F-<-A---<J-F--7FF7--77--AFJJJ-A-7<AA<AF-7F7	AS:i:195	XS:i:195	XN:i:0	XM:i:1	XO:i:1	XG:i:1	NM:i:2	MD:Z:45^T17A41	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:13961:48649	16	TRINITY_DN38849_c1_g3_i1	147	16	72M33S	*	0	0	ACCAACACCCACACCCCTGTGATGAAACAAAACCCATAAATGCGCATAAAACAAGAGGAGAGTGGCATGGCTTTATTTGTTTTTTCTTTTGGCGCTTGACTCAGN	JJFFF<AJAJJA-A<JJJFJJJJJJJJJJJJJJFJJ-JJFJJJFF-JFFJJJF<AF-<F7--F7FJJJAJJJJJJJJJJJJJJJJJJJJJJJJFJFJJJFAA<A#	AS:i:127	XS:i:80	XN:i:0	XM:i:3	XO:i:0	XG:i:0	NM:i:3	MD:Z:6C49C4T10	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:14123:48649	16	TRINITY_DN37912_c1_g1_i1	609	44	104M1S	*	0	0	CAATGCTGAGCATCCGCCTCCCCCACCTCCACCCCAGACACCCCCGCCTCCCACACCCAAAGCGCCGCCGCCGCCAGATAAACCTGAAAAGCCAAGGAAGGGGAN	<A-FF<JJJFJJJJJJJAJJAA7<7FJF7A-JA<FFF7JJJJF<AFJJJJFAJFFFJJJAJ<-FJ<JFJJJ7JAJJF-<JJFFJJJFJFFAAFJJJFJJJFFAA#	AS:i:203	XN:i:0	XM:i:1	XO:i:0	XG:i:0	NM:i:1	MD:Z:2C101	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:30056:48649	0	TRINITY_DN18305_c0_g1_i1	1134	44	1S95M9S	*	0	0	NTCATATCTTTCCTCACTTACATAGAAGGAGCAGCAATTTTTTAAACATTCAGTTCTCCTTCTCAAATAGCTTACCTGCAGAATACAAAATCCACAAGATCGGAA	#AAFFJJJJJJJJJJJJJJJJJJJFJJ7<J--77FJJAFJFJJJJJF<FFJJ7<7FJAFJ<JA-FAA<JFF7<AAFF7AJAJFJFJJJJJJ7-AFJJ<JJ7<7<A	AS:i:185	XN:i:0	XM:i:1	XO:i:0	XG:i:0	NM:i:1	MD:Z:30G64	YT:Z:UU
-K00341:59:HKMMJBBXX:8:2228:31659:48649	0	TRINITY_DN37884_c1_g1_i1	2812	44	1S104M	*	0	0	NTAAAATAGATGTCGTTATCAAATAACTGAATTCTGGCATATCGAATGCCTTCCCTTCTCAGCTGATTCAGTTTCGCATCATCAACCCACTTTACACACTGTCAG	#AAAFFJJAJJAFJAFJJJJFAFJJJFJ-AFJFJJ--7AFJJJFJJJ-FFJJJFAJJ<-<F-7FFFAJFA-FJFJFFFAAFA77JJJJJJJ--<<FJJFF-J-7-	AS:i:188	XN:i:0	XM:i:4	XO:i:0	XG:i:0	NM:i:4	MD:Z:57G32G0G9G2	YT:Z:UU
-
-(same kind of output than slurm-9137829.out)
-
-#Step 2 (in workshpo we have 2 steps with samtools, but in trinityrnaseq they do only one)
-samtoolsView.sh 
-
-#!/bin/sh
-
-#SBATCH --time=05:00:00
-#SBATCH --cpus-per-task=30
-#SBATCH --mem=60G
-#SBATCH --partition=shared
-#SBATCH --mail-type=ALL
-
-module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
-
-srun samtools view -@10 -Sb HH25.sam -o HH25.bam 2>&1 
-       
-TEST sbatch samtoolsView.sh 
-Submitted batch job 9141190
-
-sbatch samtoolsViewTee.sh 
-Submitted batch job 9141202
-
-#!/bin/sh
-
-#SBATCH --time=05:00:00
-#SBATCH --cpus-per-task=30
-#SBATCH --mem=60G
-#SBATCH --partition=shared
-#SBATCH --mail-type=ALL
-
-module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
-
-srun samtools view -@10 -Sb bowtie2.sam -o bowtie2.bam 2>&1 | tee align_stats.txt
-#( I renamed files HH25 to bowtie2 in order to follow more easily trinity documentation)
-
-[hinterma@login1 HH25_Trinity]$ sbatch samtoolsViewTee.sh 
-Submitted batch job 9142760
-
-
-#Doesn't work. sacct has error, but I see file size of jobs and outputs = 0.
-
-% bowtie2 --local --no-unal -x Trinity.fasta -q -1 left.100k.fastq -2 right.100k.fastq \
-        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
-
-# Explain samtools view -Sb - 
-# samtools view : prints all alignments in the specified input alignment file (in SAM, BAM, or CRAM format) to standard output in SAM format
-#-S Ignored for compatibility with previous samtools versions. Previously this option was required if input was in SAM format, but now the correct format is automatically detected by examining the first few characters of input. 
-# -b Output in the BAM format. 
-
-#From trinity doc: samtools view -Sb -  (input = bowtie2.sam)
-# From samtools doc: samtools view -bS aln.sam > aln.bam (Import SAM to BAM when @SQ lines are present in the header)
-
-samtoolsViewOnly.sh
+bowtie2.sh
 
 #!/bin/sh
 
 #SBATCH --time=00:30:00
-#SBATCH --cpus-per-task=12
-#SBATCH --mem=20G
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=60G
 #SBATCH --partition=shared
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=aurelie.hintermann@unige.ch
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq -S bowtie2.sam
+
+Submitted batch job 9142995
+
+# Step 2 - print alignments without headers. tool_ samtools view, input = sam, output= bam 
+
+samtoolsView.sh 
+
+#!/bin/sh
+
+#SBATCH --time=00:20:00 ## should take 14 mn
+#SBATCH --cpus-per-task=30
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
 srun samtools view -bS bowtie2.sam > bowtie2_v2.bam
+       
 
-Submitted batch job 9142910
-# took 14 mn
-
-# This gave me the same file size thant the pied command. So I guess Step 2 also worked.
-# To clean , I rm bowtie2.bam and then mv bowtie2_v2.bam bowtie2.bam 
 
 ### Step 3
 
