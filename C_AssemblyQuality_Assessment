@@ -159,13 +159,9 @@ samtoolsSort.sh
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-## srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam # !! ERASE bowtie2.bam
-##try with:
-srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
-Submitted batch job 9143443
+srun samtools sort -o bowtie2.coordSorted.bam -T tmpF bowtie2.bam
 
-#with srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
-srun samtools sort -o bowtie2.coordSorted.bam bowtie2.bam
+
 
 samtoolsViewSort.sh
 
