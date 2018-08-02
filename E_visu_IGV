@@ -1,1 +1,50 @@
-dd
+indexBTcoord.sh
+#!/bin/sh
+
+#SBATCH --time=00:05:00
+#SBATCH --cpus-per-task=6 
+#SBATCH --mem=20G
+#SBATCH --partition=debug 
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun samtools index  bowtie2.coordSorted.bam
+Submitted batch job 9146577
+
+runtime 00:01:31
+
+#####
+# To debug
+#####
+
+#!/bin/sh
+
+#SBATCH --time=00:05:00
+#SBATCH --cpus-per-task=6 
+#SBATCH --mem=20G
+#SBATCH --partition=debug 
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun ###
+
+#####
+# To run
+#####
+
+#!/bin/sh
+
+#SBATCH --time=03:05:00
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=60G
+#SBATCH --partition=shared 
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun ###
