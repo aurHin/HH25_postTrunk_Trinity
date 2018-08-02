@@ -166,6 +166,24 @@ Submitted batch job 9143443
 
 with srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
 
+
+samtoolsViewSort.sh
+
+#!/bin/sh
+
+#SBATCH --time=02:40:00
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+#SBATCH	--mail-user=aurelie.hintermann@unige.ch
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun samtools view -bS bowtie2.sam | samtools sort -o bowtie2.coordSorted.bam
+
+Submitted batch job 9146392
+
 #####
 # To debug
 #####
@@ -181,9 +199,7 @@ with srun samtools sort bowtie2.bam -o bowtie2.coordSorted.bam
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam
-
-#srun samtools sort -o bowtie2.bam > bowtie2.coordSorted.bam # .bam does not work. try with .sam
+srun ###
 
 ######
 # sacct error
