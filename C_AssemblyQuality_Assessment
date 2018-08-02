@@ -159,8 +159,9 @@ samtoolsSort.sh
 
 module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
 
-srun samtools sort -o bowtie2.coordSorted.bam -T tmpF bowtie2.bam
+srun samtools sort -o bowtie2.coordSorted.bam -T tmpF2 bowtie2.bam
 
+Submitted batch job 9146430
 
 
 samtoolsViewSort.sh
@@ -179,6 +180,9 @@ module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.1
 srun samtools view -bS bowtie2.sam | samtools sort -o bowtie2.coordSorted.bam
 
 Submitted batch job 9146392
+
+[E::hts_open_format] Failed to open file bowtie2.coordSorted.bam.tmp.0000.bam
+samtools sort: failed to create temporary file "bowtie2.coordSorted.bam.tmp.0000.bam": File exists
 
 #####
 # To debug
