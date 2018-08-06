@@ -32,3 +32,174 @@ sbatch quantif.sh
 2018-07-27T18:22:06   00:04:16   00:00:00  COMPLETED      0.01G 9118644.bat+         node197       40Gn 
 2018-07-27T18:22:09   00:04:13   00:16:23  COMPLETED      2.51G 9118644.0            node197       40Gn 
 
+
+#####
+# Stats on Assembly
+#####
+
+# SBATCH file "AssemblyStat.sh ":
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun util/TrinityStats.pl trinity_out_dir/Trinity.fasta
+
+# Launch script
+sbatch AssemblyStat.sh 
+# slurm-9136757.out
+
+
+# Check stats of run:
+sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9136757
+              Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-30T12:42:12   00:00:52             COMPLETED            9136757              node003       20Gn 
+2018-07-30T12:42:12   00:00:52   00:00:00  COMPLETED      0.01G 9136757.bat+         node003       20Gn 
+2018-07-30T12:42:13   00:00:50   00:00:19  COMPLETED      0.02G 9136757.0            node003       20Gn 
+
+# Here it is so fast that the debug was sufficient, no need to re-run
+
+#####
+#Output
+#####
+
+
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':  105255
+Total trinity transcripts:      144214
+Percent GC: 47.31
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+        Contig N10: 6277
+        Contig N20: 4804
+        Contig N30: 3855
+        Contig N40: 3114
+        Contig N50: 2456
+
+        Median contig length: 418
+        Average contig: 1055.05
+        Total assembled bases: 152152903
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+        Contig N10: 5581
+        Contig N20: 4052
+        Contig N30: 3058
+        Contig N40: 2206
+        Contig N50: 1477
+
+        Median contig length: 334
+        Average contig: 719.54
+        Total assembled bases: 75734727
+
+# Check with 
+grep '>' Trinity.fasta | wc -l
+# the number should match Total trinity transcripts:      144214 of the previous command. Here, yes.
+
+#####
+# More useful stats and representation of reads
+#####
+
+indexBT2.sh
+
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun bowtie2-build trinity_out_dir/Trinity.fasta trinity_out_dir/Trinity.fasta
+
+#Submitted batch job 9137063
+
+[hinterma@login1 HH25_Trinity]$ sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9137063
+              Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-30T15:02:19   00:13:24             COMPLETED            9137063              node003       20Gn 
+2018-07-30T15:02:19   00:13:24   00:00:00  COMPLETED      0.01G 9137063.bat+         node003       20Gn 
+2018-07-30T15:02:21   00:13:22   00:12:57  COMPLETED      0.83G 9137063.0            node003       20Gn 
+
+### Read name sorted BAM with Bowtie 2
+
+# Debug
+#!/bin/sh
+
+#SBATCH --time=00:15:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=20G
+#SBATCH --partition=debug
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq
+        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
+
+#Stats of the run show TIMEOUT, I guess we finished the 15 mn
+[hinterma@login1 HH25_Trinity]$ sacct --format=Start,Elapsed,AveCPU,State,MaxRSS,JobID,NodeList,ReqMem --units=G -j 9137829
+
+ Start    Elapsed     AveCPU      State     MaxRSS        JobID        NodeList     ReqMem 
+------------------- ---------- ---------- ---------- ---------- ------------ --------------- ---------- 
+2018-07-30T16:44:08   00:15:20               TIMEOUT            9137829              node003       20Gn 
+2018-07-30T16:44:08   00:15:20   00:01:05  CANCELLED      0.01G 9137829.bat+         node003       20Gn 
+2018-07-30T16:44:10   00:15:18   00:09:22  CANCELLED      0.33G 9137829.0            node003       20Gn 
+
+[hinterma@login1 HH25_Trinity]$ head slurm-9137829.out 
+@HD	VN:1.0	SO:unsorted
+@SQ	SN:TRINITY_DN101689_c0_g1_i1	LN:365
+@SQ	SN:TRINITY_DN101632_c0_g1_i1	LN:242
+@SQ	SN:TRINITY_DN101600_c0_g1_i1	LN:304
+@SQ	SN:TRINITY_DN101691_c0_g1_i1	LN:251
+@SQ	SN:TRINITY_DN101620_c0_g1_i1	LN:218
+@SQ	SN:TRINITY_DN101641_c0_g1_i1	LN:354
+@SQ	SN:TRINITY_DN101696_c0_g1_i1	LN:265
+@SQ	SN:TRINITY_DN101603_c0_g1_i1	LN:406
+@SQ	SN:TRINITY_DN101626_c0_g1_i1	LN:229
+[hinterma@login1 HH25_Trinity]$ tail slurm-9137829.out 
+K00341:59:HKMMJBBXX:8:1107:6583:5798	0	TRINITY_DN38741_c0_g1_i2	368	1	105M	*	0	0	CAGTAATCTACAAGCACTTCCCAACACTTACACTTCACAATACCTTACTATGCATACACTTGCTCAACAAGAACTGGTTTTATAAATGGTCTTAACAGATCAGTA	AAFAFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJJ	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:6644:5798	0	TRINITY_DN15466_c0_g1_i2	70	44	105M	*	0	0	CTCTTCTGTGCAGTGCAGGATGGGTTCCAAACATGTGTGGGTGAGGCTGGAAATGTGGTGCACCAGCTCTGCTTCCCCAAATCAGCTGCTCTGTGAGCAACAGGA	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJFJJJJJJJJJ	AS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:6786:5798	16	TRINITY_DN25472_c0_g1_i2	1753	1	105M	*	0	0	CACAACTCACGTTGCTCCTAATACAAGCACAAATCTGACAATGAGCTTTAACAACCAGCTCAATACAGTACACAACCAGGCCAGTGTGTTGGCTTCCAATTCTAC	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:6847:5798	16	TRINITY_DN38557_c0_g1_i14	7188	38	105M	*	0	0	TTAAAGATAACATTTCACCCAAGCTTCATGTAGATAAAGGATTTGTGAATATATTGATGACCAGTTTCTTGCAGTATATTTCAAGTGAAGTAAACCCACCTAGTG	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:90	XN:i:0	XM:i:0	XO:i:0	XG:i:0NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7111:5798	0	TRINITY_DN23047_c0_g1_i1	1979	35	105M	*	0	0	CTGACAAATGTTGCCTAATTCCAGGGCACGACCCTGCAGCATCTCCAAGTTTCCTCCACACAACCTGGGGCAGCACGCGATTTTCCTCCTCCAGCTGTCTTACTC	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJJJJFJJJJJFJJJJJJJJJJJFJJJJJJJJJJFJJJJJFF	AS:i:210	XS:i:130	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7151:5798	0	TRINITY_DN36419_c0_g1_i2	252	1	105M	*	0	0	TCGTCATGGAGCCCACGCCGGCGCCCCCCCGCAGGTACAGATGGCGCGCGGTGGACGCCGCCCGCGTGTAGAACCAGTTCTCGTCATAGGGCGCCAGCTCTTTGT	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7212:5798	0	TRINITY_DN32233_c0_g1_i2	1323	33	105M	*	0	0	CGCTGTTATAGATGGGCTCCGGGGAGGGAGACCTGTCCTCAGGGTTAGGGGGGATGCCCAGGTCTCCCGTGCGCAGTTTGCGGGTCAGGTCTTCTATCTGCAGTT	<<AFFJJJFJFFJF<JJJJAFJJ<J7AFFF-<JJAF<7AFFFJ77FA<AJA7JAA<AJFFFFFJJ<<AJ7AJJJFJFAAJ-FJFJ<<JAJJAJF7JFJJAJAJJF	AS:i:210	XS:i:152	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7233:5798	0	TRINITY_DN36312_c0_g1_i1	3465	44	1S104M	*	0	0	CGCTGAGCACATGCACTAAGGCTGAGAGGAGGGATGCACTGAATGTTGAAAAGTGGCTGACTGCGATGCTGCGGATTGGACCGTAGGTTGCACAGGTGGAGGAGG	AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJ	AS:i:208	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0MD:Z:104	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7415:5798	16	TRINITY_DN33396_c0_g1_i2	722	1	105M	*	0	0	AAAAGTCCGCAGCAGCTGTACCAGCCAAAAAGCCTGCAGTTGTGCCAGCAAAGCAAGAATCTGAGGAGGAGGAGGAGGAAGATGATGAAGAGGAGGACGAGGAAG	JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFFAA	AS:i:210	XS:i:210	XN:i:0	XM:i:0	XO:i:0XG:i:0	NM:i:0	MD:Z:105	YT:Z:UU
+K00341:59:HKMMJBBXX:8:1107:7659:5798	16	TRINITY_DN98443_c0_g1_i1	221	44	105M	*	0	0	AATTTAGCAGAGTTCTGTATTTGAGCCCCGGCCACTTCCCTGCTAATACTACAGCTGTGTTAGACATGAAACCTGAGCTCTTATTTGCCTGAAAAGTGAGTCATT	F777JAFJJFAAAAJJJJJAAJJFAJA7FFJJJJJJJJJFFFFJJJFFFJJFFJAFAFFJJJJJJJFA<AAFFFF7JFAJFJJJFFJFAF7FJJFFFJFFAFAAA	AS:i:210	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0MD:Z:105	YT:Z:UU
+
+#Then, run on shared: (time is a guess)
+
+#!/bin/sh
+
+#SBATCH --time=00:06:00
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=60G
+#SBATCH --partition=shared
+#SBATCH --mail-type=ALL
+
+module load GCC/6.3.0-2.27 OpenMPI/2.0.2 Trinity/2.6.6 Salmon/0.9.1-Python-2.7.12 Jellyfish/2.2.6 Bowtie2/2.3.2 SAMtools/1.8
+
+srun  bowtie2 --local --no-unal -x trinity_out_dir/Trinity.fasta -q -U HH25_RNAseq_R1.fastq
+        | samtools view -Sb - | samtools sort -o bowtie2.coordSorted.bam
+
+
+failed
